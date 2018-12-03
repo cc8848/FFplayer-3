@@ -6,12 +6,12 @@
 #undef main
 
 
-#define FUNC_ERROR(err_code) {\
+#define FUNC_ERROR(err_code) do {\
     char buf[1024];\
     av_strerror(err_code, buf, 1024);\
     av_log(NULL, AV_LOG_ERROR, "DEBUG_ERROR: %s-%04d-->%s.\n",__FUNCTION__, __LINE__, buf);\
     return AV_LOG_ERROR;\
-    }
+    } while(0)
 
 int leishen3(void);
 int sdl2_test(void);
@@ -21,22 +21,72 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     FFPlayer w;
 
-    // rename url
-    int err_code = -1;
-    err_code = avpriv_io_move("../testData/Titfesanic.ts", "../testData/Romafgewfentic.ts");
-    if(err_code < 0)
-        FUNC_ERROR(err_code)
+    // 5. get audio data
 
-
-    // delete url
-    err_code = avpriv_io_delete("../testData/111.txt");
-    if(err_code < 0)
-        FUNC_ERROR(err_code)
 
 
 
     return 0;    //a.exec()
 }
+
+
+#if 0
+
+// 1. rename url
+int err_code = -1;
+err_code = avpriv_io_move("../testData/Titfesanic.ts", "Romafgewfentic.ts");
+if(err_code < 0)
+    FUNC_ERROR(err_code);
+
+
+// 2. delete url
+err_code = avpriv_io_delete("111.txt");
+if(err_code < 0)
+    FUNC_ERROR(err_code);
+
+
+// 3. open dir + read dir + close dir
+AVIODirContext *ctx = NULL;
+AVIODirEntry *entry = NULL;
+int ret = avio_open_dir(&ctx, "release", NULL);
+if(ret < 0)
+    FUNC_ERROR(ret);     //av_err2str(ret);
+
+while(1){
+    ret = avio_read_dir(ctx, &entry);
+    if(ret < 0)
+        FUNC_ERROR(ret);
+    if(!entry)
+        break;
+    qDebug() <<"entry->size = " <<entry->size
+            <<"entry->name = " <<entry->name;
+
+    avio_free_directory_entry(&entry);
+}
+avio_close_dir(&ctx);
+
+
+// 4. print Meta info
+int ret;
+AVFormatContext *fmt_ctx = NULL;
+av_register_all();
+ret = avformat_open_input(&fmt_ctx, "Titanic.ts", NULL, NULL);
+if(ret < 0)
+    FUNC_ERROR(ret);
+av_dump_format(fmt_ctx, 0 , "Titanic.ts", 0);   // 0,input; 1,output
+
+avformat_close_input(&fmt_ctx);
+
+
+
+
+
+
+
+
+
+
+#endif
 
 
 
