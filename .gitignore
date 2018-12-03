@@ -1,0 +1,6 @@
+*.o
+*.exe
+moc_*
+Makefile*
+ui_*.h
+*.user
