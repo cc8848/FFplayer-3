@@ -23,13 +23,13 @@ int main(int argc, char *argv[])
 
     // rename url
     int err_code = -1;
-    err_code = avpriv_io_move("Titfesanic.ts", "Romafgewfentic.ts");
+    err_code = avpriv_io_move("../testData/Titfesanic.ts", "../testData/Romafgewfentic.ts");
     if(err_code < 0)
         FUNC_ERROR(err_code)
 
 
     // delete url
-    err_code = avpriv_io_delete("111.txt");
+    err_code = avpriv_io_delete("../testData/111.txt");
     if(err_code < 0)
         FUNC_ERROR(err_code)
 
@@ -60,7 +60,7 @@ int leishen3(void)
     int ret, got_picture;
     struct SwsContext *img_convert_ctx;
     //输入文件路径
-    char filepath[]="Titanic.ts";
+    char filepath[]="../testData/Titanic.ts";
 
     int frame_cnt;
 
@@ -194,7 +194,7 @@ int sdl2_test(void)
     gScreenSurface=SDL_GetWindowSurface(gWindow);
 
     //加载图片
-    gHelloWorld = SDL_LoadBMP("Hello_World.bmp");//加载图片
+    gHelloWorld = SDL_LoadBMP("../testData/Hello_World.bmp");//加载图片
     if( gHelloWorld == NULL )
     {
         printf( "Unable to load image %s! SDL Error: %s\n", "Hello_World.bmp", SDL_GetError() );

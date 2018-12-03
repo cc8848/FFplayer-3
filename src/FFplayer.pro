@@ -21,26 +21,26 @@ FORMS    += ffplayer.ui
 
 
 #----------------- FFmpeg -----------------
-INCLUDEPATH += F:/FFplayer/FFmpeg/include
+INCLUDEPATH += ../FFmpeg/include
 
-LIBS += F:/FFplayer/FFmpeg/lib/libavcodec.dll.a\
-        F:/FFplayer/FFmpeg/lib/libavdevice.dll.a\
-        F:/FFplayer/FFmpeg/lib/libavfilter.dll.a\
-        F:/FFplayer/FFmpeg/lib/libavformat.dll.a\
-        F:/FFplayer/FFmpeg/lib/libavutil.dll.a\
-        F:/FFplayer/FFmpeg/lib/libswresample.dll.a\
-        F:/FFplayer/FFmpeg/lib/libswscale.dll.a\
-        F:/FFplayer/FFmpeg/lib/libpostproc.dll.a
+LIBS += ../FFmpeg/lib/libavcodec.dll.a\
+	../FFmpeg/lib/libavdevice.dll.a\
+	../FFmpeg/lib/libavfilter.dll.a\
+	../FFmpeg/lib/libavformat.dll.a\
+	../FFmpeg/lib/libavutil.dll.a\
+	../FFmpeg/lib/libswresample.dll.a\
+	../FFmpeg/lib/libswscale.dll.a\
+	../FFmpeg/lib/libpostproc.dll.a
 
 
 
 
 #----------------- SDL -----------------
-INCLUDEPATH += F:/FFplayer/SDL2-2.0.9/include
+INCLUDEPATH += ../SDL2-2.0.9/include
 
-LIBS += -LF:/FFplayer/SDL2-2.0.9/lib/x86 -lSDL2
-LIBS += -LF:/FFplayer/SDL2-2.0.9/lib/x86 -lSDL2main
-LIBS += -LF:/FFplayer/SDL2-2.0.9/lib/x86 -lSDL2test
+LIBS += -L../SDL2-2.0.9/lib/x86 -lSDL2
+LIBS += -L../SDL2-2.0.9/lib/x86 -lSDL2main
+LIBS += -L../SDL2-2.0.9/lib/x86 -lSDL2test
 
 #第一种方法：格式为:  LIBS += -L+相对路径+空格+-l+库文件的名字（不加.lib）
 #第二种方法：格式为:  LIBS += -L+绝对路径+空格+-l+库文件的名字（不加.lib）
