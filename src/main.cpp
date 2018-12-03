@@ -21,76 +21,10 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     FFPlayer w;
 
-    // 5. get audio data
-
-
-
+    leishen3();
 
     return 0;    //a.exec()
 }
-
-
-#if 0
-
-// 1. rename url
-int err_code = -1;
-err_code = avpriv_io_move("../testData/Titfesanic.ts", "Romafgewfentic.ts");
-if(err_code < 0)
-    FUNC_ERROR(err_code);
-
-
-// 2. delete url
-err_code = avpriv_io_delete("111.txt");
-if(err_code < 0)
-    FUNC_ERROR(err_code);
-
-
-// 3. open dir + read dir + close dir
-AVIODirContext *ctx = NULL;
-AVIODirEntry *entry = NULL;
-int ret = avio_open_dir(&ctx, "release", NULL);
-if(ret < 0)
-    FUNC_ERROR(ret);     //av_err2str(ret);
-
-while(1){
-    ret = avio_read_dir(ctx, &entry);
-    if(ret < 0)
-        FUNC_ERROR(ret);
-    if(!entry)
-        break;
-    qDebug() <<"entry->size = " <<entry->size
-            <<"entry->name = " <<entry->name;
-
-    avio_free_directory_entry(&entry);
-}
-avio_close_dir(&ctx);
-
-
-// 4. print Meta info
-int ret;
-AVFormatContext *fmt_ctx = NULL;
-av_register_all();
-ret = avformat_open_input(&fmt_ctx, "Titanic.ts", NULL, NULL);
-if(ret < 0)
-    FUNC_ERROR(ret);
-av_dump_format(fmt_ctx, 0 , "Titanic.ts", 0);   // 0,input; 1,output
-
-avformat_close_input(&fmt_ctx);
-
-
-
-
-
-
-
-
-
-
-#endif
-
-
-
-
 
 
 
@@ -123,18 +57,18 @@ int leishen3(void)
         ret = avformat_find_stream_info(pFormatCtx,NULL);
         if(ret < 0)
             break;
-        videoindex=-1;
+        videoindex = -1;
         for(i=0; i<pFormatCtx->nb_streams; i++)
             if(pFormatCtx->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO){
-                videoindex=i;
+                videoindex = i;
                 break;
             }
-        if(videoindex==-1){
+        if(videoindex == -1){
             printf("Didn't find a video stream.\n");
             return -1;
         }
-        pCodecCtx=pFormatCtx->streams[videoindex]->codec;
-        pCodec=avcodec_find_decoder(pCodecCtx->codec_id);
+        pCodecCtx = pFormatCtx->streams[videoindex]->codec;
+        pCodec = avcodec_find_decoder(pCodecCtx->codec_id);
         if(pCodec == NULL)
             break;
         ret = avcodec_open2(pCodecCtx, pCodec,NULL);
@@ -153,11 +87,12 @@ int leishen3(void)
      * 在此处添加输出视频信息的代码
      * 取自于pFormatCtx，使用fprintf()
      */
-    pFrame=av_frame_alloc();
-    pFrameYUV=av_frame_alloc();
-    out_buffer=(uint8_t *)av_malloc(avpicture_get_size(AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height));
+    pFrame = av_frame_alloc();
+    pFrameYUV = av_frame_alloc();
+    out_buffer = (uint8_t *)av_malloc(avpicture_get_size(AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height));
+    // use av_image_fill_arrays() instead.
     avpicture_fill((AVPicture *)pFrameYUV, out_buffer, AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height);
-    packet=(AVPacket *)av_malloc(sizeof(AVPacket));
+    packet = (AVPacket *)av_malloc(sizeof(AVPacket));
     //Output Info-----------------------------
     printf("--------------- File Information ----------------\n");
     av_dump_format(pFormatCtx,0,filepath,0);
@@ -167,7 +102,7 @@ int leishen3(void)
 
     frame_cnt=0;
     while(av_read_frame(pFormatCtx, packet)>=0){
-        if(packet->stream_index==videoindex){
+        if(packet->stream_index == videoindex){
                 /*
                  * 在此处添加输出H264码流的代码
                  * 取自于packet，使用fwrite()
