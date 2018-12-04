@@ -13,15 +13,17 @@
     return AV_LOG_ERROR;\
     } while(0)
 
-int leishen3(void);
-int sdl2_test(void);
+
+int video_decode(char *filepath);
+int sdl2_test(char *filepath);
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     FFPlayer w;
 
-    leishen3();
+    video_decode("../testData/Titanic.ts");
+    //sdl2_test("../testData/Hello_World.bmp");
 
     return 0;    //a.exec()
 }
@@ -32,7 +34,7 @@ int main(int argc, char *argv[])
 
 
 
-int leishen3(void)
+int video_decode(char *filepath)
 {
     AVFormatContext	*pFormatCtx = NULL;
     int				i, videoindex;
@@ -44,7 +46,6 @@ int leishen3(void)
     int ret, got_picture;
     struct SwsContext *img_convert_ctx;
     //输入文件路径
-    char filepath[]="../testData/Titanic.ts";
 
     int frame_cnt;
 
@@ -140,7 +141,7 @@ int leishen3(void)
 }
 
 
-int sdl2_test(void)
+int sdl2_test(char *filepath)
 {
     using namespace std;
     const int SCREEN_WIDTH = 640;
@@ -179,7 +180,7 @@ int sdl2_test(void)
     gScreenSurface=SDL_GetWindowSurface(gWindow);
 
     //加载图片
-    gHelloWorld = SDL_LoadBMP("../testData/Hello_World.bmp");//加载图片
+    gHelloWorld = SDL_LoadBMP(filepath);//加载图片
     if( gHelloWorld == NULL )
     {
         printf( "Unable to load image %s! SDL Error: %s\n", "Hello_World.bmp", SDL_GetError() );
