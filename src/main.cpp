@@ -17,6 +17,7 @@
 void adts_header(char *szAdtsHeader, int dataLen);
 int leishen3(void);
 int video_decode(char *filepath);
+int fetch_audio(char *srcPath, char *dstPath);
 int sdl2_test(char *filepath);
 
 int main(int argc, char *argv[])
@@ -24,22 +25,19 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     FFPlayer w;
 
-    video_decode("../testData/Titanic.ts");
+    //video_decode("../testData/Titanic.ts");
     //sdl2_test("../testData/Hello_World.bmp");
+    //fetch_audio("../testData/Forrest_Gump_IMAX.mp4", "../testData/Forrest_Gump_IMAX.aac");
 
     return 0;    //a.exec()
 }
 
 
-int video_decode(char *filepath)
+int fetch_audio(char *srcPath, char *dstPath)
 {
     //5. fetch audio data, the .ts media file is invalue here.
     AVFormatContext *pFormatCtx = NULL;
-    AVInputFormat *pFormat = NULL;
-    AVCodecContext *pCodecCtx = NULL;
-    AVCodec *pCodec = NULL;
     AVPacket *packet = NULL;
-    AVFrame *pframe = NULL;
 
     FILE *pDstFile = NULL;
     int ret = -1;
@@ -47,14 +45,14 @@ int video_decode(char *filepath)
 
     av_register_all();
     //5.1   open media file and dest file
-    ret = avformat_open_input(&pFormatCtx, "../testData/Forrest_Gump_IMAX.mp4", NULL, NULL);
+    ret = avformat_open_input(&pFormatCtx, srcPath, NULL, NULL);
     if(ret < 0)
     {
         FUNC_ERROR(ret);
         return -1;
     }
 
-    pDstFile = fopen("../testData/Forrest_Gump_IMAX.aac", "wb");
+    pDstFile = fopen(dstPath, "wb");
     if(!pDstFile)
     {
         perror("fopen failed: ");
