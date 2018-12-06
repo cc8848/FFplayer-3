@@ -15,7 +15,11 @@ TEMPLATE = app
 SOURCES += main.cpp\
         ffplayer.cpp
 
-HEADERS  += ffplayer.h
+HEADERS  += ffplayer.h \
+    ffplayer_video.h \
+    ffplayer_audio.h \
+    ffplayer_general.h \
+    ffplayer_sdl.h
 
 FORMS    += ffplayer.ui
 
@@ -42,9 +46,9 @@ LIBS += -L../SDL2-2.0.9/lib/x86 -lSDL2
 LIBS += -L../SDL2-2.0.9/lib/x86 -lSDL2main
 LIBS += -L../SDL2-2.0.9/lib/x86 -lSDL2test
 
-#第一种方法：格式为:  LIBS += -L+相对路径+空格+-l+库文件的名字（不加.lib）
-#第二种方法：格式为:  LIBS += -L+绝对路径+空格+-l+库文件的名字（不加.lib）
-#第三种方法：格式为:  LIBS += -L+相对路径++库文件的名字（加.lib）
+#第一种方法：格式�?:  LIBS += -L+相对路径+空格+-l+库文件的名字（不�?.lib�?
+#第二种方法：格式�?:  LIBS += -L+绝对路径+空格+-l+库文件的名字（不�?.lib�?
+#第三种方法：格式�?:  LIBS += -L+相对路径++库文件的名字（加.lib�?
 #第四种方法：
     #LIBS += -L../lib/x86
     #LIBS += SDL2.lib
