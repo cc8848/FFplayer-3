@@ -20,7 +20,7 @@
 
 
 
-
+// just for HE-AAC, not suit to LC-AAC
 void adts_header(char *szAdtsHeader, int dataLen)
 {
 

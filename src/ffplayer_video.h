@@ -280,10 +280,8 @@ fail:
 int fetch_h264(char *srcPath, char *dstPath)
 {
     AVFormatContext *pFormatCxt = NULL;
-    AVCodecContext *pCodecCxt = NULL;
-    AVCodec *pCodec = NULL;
     AVPacket *packet = NULL;
-    AVFrame *pFrame = NULL;
+
 
     int err_code = -1;
     int videoIndex = -1;
