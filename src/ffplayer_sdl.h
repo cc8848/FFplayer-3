@@ -1,23 +1,7 @@
 #ifndef FFPLAYER_SDL
 #define FFPLAYER_SDL
 
-#include "ffplayer.h"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#include "ffplayer_general.h"
 
 
 

@@ -1,7 +1,7 @@
 #ifndef FFPLAYER_VIDEO
 #define FFPLAYER_VIDEO
 
-#include "ffplayer.h"
+#include "ffplayer_general.h"
 
 #ifndef AV_WB32
 #   define AV_WB32(p, val) do {                 \
