@@ -1,0 +1,15 @@
+nb_streams = 2
+
+----- AVMEDIA_TYPE_VIDEO -----
+AVCodecID = 27
+AVPixelFormat = 0
+bit_rate = 0
+width = 640
+height = 272
+
+----- AVMEDIA_TYPE_AUDIO -----
+AVCodecID = 86017
+AVPixelFormat = 8
+bit_rate = 128000
+frame_size = 1152
+

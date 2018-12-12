@@ -154,9 +154,9 @@ int h264_mp4toannexb(AVFormatContext *fmt_ctx, AVPacket *in, FILE *dst_fd)
 
     out = av_packet_alloc();
 
-    buf      = in->data;
-    buf_size = in->size;
-    buf_end  = in->data + in->size;
+    buf      = in->data;                // head
+    buf_size = in->size;                // body
+    buf_end  = in->data + in->size;     // tail
 
     do {
         ret= AVERROR(EINVAL);
@@ -169,7 +169,7 @@ int h264_mp4toannexb(AVFormatContext *fmt_ctx, AVPacket *in, FILE *dst_fd)
         buf += 4; /*s->length_size;*/
         unit_type = *buf & 0x1f;
 
-        if (nal_size > buf_end - buf || nal_size < 0)
+        if (nal_size > buf_end - buf || nal_size < 0)   // '-' > '||'
             goto fail;
 
         /*
@@ -340,7 +340,7 @@ int fetch_h264(char *srcPath, char *dstPath)
 
 
 
-int video_decode(char *filepath)
+int video_decode(char *srcPath, char *dstH264Path, char *dstYUVPath, char *dstTPath)
 {
     AVFormatContext	*pFormatCtx = NULL;
     int				i, videoindex;
@@ -351,14 +351,18 @@ int video_decode(char *filepath)
     AVPacket *packet;
     int ret, got_picture;
     struct SwsContext *img_convert_ctx;
-    //输入文件路径
+
+    FILE *pdstH264Path, *pDstYUVPath, *pDstTPath;
+    pdstH264Path = fopen(dstH264Path, "wb");
+    pDstYUVPath = fopen(dstYUVPath, "wb");
+    pDstTPath = fopen(dstTPath, "wb");
 
     int frame_cnt;
 
     av_register_all();  //Initialize libavformat and register all the muxers, demuxers and protocols.
     do
     {
-        ret = avformat_open_input(&pFormatCtx,filepath,NULL,NULL);
+        ret = avformat_open_input(&pFormatCtx,srcPath,NULL,NULL);
         if(ret != 0)
             break;
         ret = avformat_find_stream_info(pFormatCtx,NULL);
@@ -394,16 +398,51 @@ int video_decode(char *filepath)
      * 在此处添加输出视频信息的代码
      * 取自于pFormatCtx，使用fprintf()
      */
+    fprintf(pDstTPath, "nb_streams = %d\r\n\r\n", pFormatCtx->nb_streams);
+    for(i=0; i<pFormatCtx->nb_streams; i++)
+    {
+        AVCodecParameters *codecpar = pFormatCtx->streams[i]->codecpar;
+        if(pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+        {
+            fprintf(pDstTPath, "----- AVMEDIA_TYPE_VIDEO -----\r\n");
+            fprintf(pDstTPath, "AVCodecID = %d\r\n", codecpar->codec_id);	//编码方式
+            fprintf(pDstTPath, "AVPixelFormat = %d\r\n", codecpar->format);	//像素格式
+            fprintf(pDstTPath, "bit_rate = %ld\r\n", codecpar->bit_rate);	//码率
+
+            fprintf(pDstTPath, "width = %d\r\n", codecpar->width);
+            fprintf(pDstTPath, "height = %d\r\n", codecpar->height);
+        }
+        else if(pFormatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
+        {
+            fprintf(pDstTPath, "----- AVMEDIA_TYPE_AUDIO -----\r\n");
+            fprintf(pDstTPath, "AVCodecID = %d\r\n", codecpar->codec_id);	//编码方式
+            fprintf(pDstTPath, "AVPixelFormat = %d\r\n", codecpar->format);	//采样格式格式
+            fprintf(pDstTPath, "bit_rate = %ld\r\n", codecpar->bit_rate);	//码率
+
+            fprintf(pDstTPath, "frame_size = %d\r\n", codecpar->frame_size);
+        }
+        // 1.封装格式参数：封装格式、比特率、时长
+        // 2.视频编码参数：编码方式、宽高
+        // 3.每一个解码前视频帧参数：帧大小
+        // 4.每一个解码后视频帧参数：帧类型
+        fprintf(pDstTPath, "\r\n");
+    }
+
     pFrame = av_frame_alloc();
     pFrameYUV = av_frame_alloc();
     out_buffer = (uint8_t *)av_malloc(avpicture_get_size(AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height));
     // use av_image_fill_arrays() instead.
+    /*
+        该行代码调用时，pFrameYUV和out_buffer都是已经申请到了一段内存，会将pFrameYUV中的数据按指定的格式
+    (这里是AV_PIX_FMT_YUV420格式)“自动关联”到out_buffer中！ so miraculous！
+    */
     avpicture_fill((AVPicture *)pFrameYUV, out_buffer, AV_PIX_FMT_YUV420P, pCodecCtx->width, pCodecCtx->height);
     packet = (AVPacket *)av_malloc(sizeof(AVPacket));
     //Output Info-----------------------------
     printf("--------------- File Information ----------------\n");
-    av_dump_format(pFormatCtx,0,filepath,0);
+    av_dump_format(pFormatCtx,0,srcPath,0);
     printf("-------------------------------------------------\n");
+    // 分配并返回一个SwsContext。
     img_convert_ctx = sws_getContext(pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt,
         pCodecCtx->width, pCodecCtx->height, AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
 
@@ -414,12 +453,16 @@ int video_decode(char *filepath)
                  * 在此处添加输出H264码流的代码
                  * 取自于packet，使用fwrite()
                  */
+            fwrite(packet, 1, packet->size, pdstH264Path);
             ret = avcodec_decode_video2(pCodecCtx, pFrame, &got_picture, packet);
             if(ret < 0){
                 printf("Decode Error.\n");
                 return -1;
             }
             if(got_picture){
+                /* avpicture_fill 和 sws_scale 的关系？
+                    当sws_scale函数将转换完成后的数据保存到pFrameYUV，也自动保存到out_buffer里面。
+                */
                 sws_scale(img_convert_ctx, (const uint8_t* const*)pFrame->data, pFrame->linesize, 0, pCodecCtx->height,
                     pFrameYUV->data, pFrameYUV->linesize);
                 printf("Decoded frame index: %d\n",frame_cnt);
@@ -428,7 +471,7 @@ int video_decode(char *filepath)
                  * 在此处添加输出YUV的代码
                  * 取自于pFrameYUV，使用fwrite()
                  */
-
+                fwrite(pFrameYUV, 1, AV_PIX_FMT_YUV420P*(pCodecCtx->width)*(pCodecCtx->height), pDstYUVPath);
                 frame_cnt++;
 
             }
