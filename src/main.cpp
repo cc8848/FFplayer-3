@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
     //fetch_audio_LC("../testData/Forrest_Gump_IMAX.mp4", "../testData/Forrest_Gump_IMAX.aac");
     //fetch_h264("../testData/Forrest_Gump_IMAX.mp4", "../testData/Forrest_Gump_IMAX.h264");
 
+    //remuxing("../testData/killer.mp4", "../testData/remuxing.flv");
     //encode_audio("../testData/encode_audio.aac");
     //decode_audio("../testData/killer.mp4", "../testData/decode_audio.aac");
     //encode_video("../testData/encode_video.h264", "libx264");
