@@ -3,9 +3,63 @@
 
 #include "ffplayer_general.h"
 
+int sdl2_showColor(const char *title,
+                   int x, int y, int w, int h,
+                   Uint8 red, Uint8 green, Uint8 blue, Uint8 a,
+                   Uint32 flags)
+{
+    int quit = 1;
+    SDL_Event event;
+    SDL_Window *pWindow = NULL;
+    SDL_Renderer *pRender = NULL;
 
+    if(x<50 || y<50 || w<50 || h<50){
+        SDL_Log("x/y/w/h < 50, invalide values.\n");
+        return -1;
+    }
+    if(SDL_Init(SDL_INIT_VIDEO) < 0){
+        SDL_Log("SDL_Init() error.\n");
+        return -1;
+    }
+    pWindow = SDL_CreateWindow(title, x, y, w, h, flags);
+    if(!pWindow){
+        SDL_Log("SDL_CreateWindow() failed.\n");
+        return -1;
+    }
 
-int sdl2_test(char *filepath)
+    pRender = SDL_CreateRenderer(pWindow, -1, 0);
+    if(!pRender){
+        SDL_Log("SDL_CreateRender() failed.\n");
+        goto __WINDOWS;
+    }
+
+    SDL_SetRenderDrawColor(pRender, red, green, blue, a);
+    SDL_RenderClear(pRender);
+    SDL_RenderPresent(pRender);
+
+    //SDL_Delay(3000);
+    do{
+
+        SDL_WaitEvent(&event);
+        switch(event.type)
+        {
+        case SDL_QUIT:
+            quit = 0;
+            break;
+        default:
+            SDL_Log("event.type = %d\n", event.type);
+            break;
+        }
+    } while(quit);
+
+__WINDOWS:
+    SDL_DestroyWindow(pWindow);
+__EXIT:
+    SDL_Quit();
+    return 0;
+}
+
+int sdl2_showPic(char *filepath)
 {
     using namespace std;
     const int SCREEN_WIDTH = 640;

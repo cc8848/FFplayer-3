@@ -64,8 +64,12 @@ void ffmpeg_info(void)
 
 
 
-
-
+/* SDL
+ *
+ */
+extern "C"{
+#include <SDL.h>
+}
 
 
 
