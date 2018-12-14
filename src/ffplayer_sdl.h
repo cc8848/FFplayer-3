@@ -24,7 +24,7 @@ int sdl2_showColor(const char *title,
     pWindow = SDL_CreateWindow(title, x, y, w, h, flags);
     if(!pWindow){
         SDL_Log("SDL_CreateWindow() failed.\n");
-        return -1;
+        goto __EXIT;
     }
 
     pRender = SDL_CreateRenderer(pWindow, -1, 0);
@@ -107,7 +107,7 @@ int sdl2_showPic(char *filepath)
     //Use this function to perform a fast surface copy to a destination surface.
     //surface的快速复制
     //下面函数的参数分别为： SDL_Surface* src ,const SDL_Rect* srcrect , SDL_Surface* dst ,  SDL_Rect* dstrect
-    SDL_BlitSurface( gHelloWorld ,     NULL ,                     gScreenSurface ,          NULL);
+    SDL_BlitSurface(gHelloWorld, NULL, gScreenSurface, NULL);
     SDL_UpdateWindowSurface(gWindow);//更新显示copy the window surface to the screen
     SDL_Delay(8000);//延时2000毫秒
 
