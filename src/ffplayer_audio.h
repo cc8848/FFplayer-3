@@ -74,28 +74,20 @@ int fetch_audio_LC(char *src_filename, char *dst_filename)
 
     /*open input media file, and allocate format context*/
     if((err_code = avformat_open_input(&fmt_ctx, src_filename, NULL, NULL)) < 0){
-        av_strerror(err_code, errors, 1024);
-        av_log(NULL, AV_LOG_DEBUG, "Could not open source file: %s, %d(%s)\n",
-               src_filename,
-               err_code,
-               errors);
+        FUNC_ERROR(err_code);
         return -1;
     }
 
     /*retrieve audio stream*/
     if((err_code = avformat_find_stream_info(fmt_ctx, NULL)) < 0) {
-        av_strerror(err_code, errors, 1024);
-        av_log(NULL, AV_LOG_DEBUG, "failed to find stream information: %s, %d(%s)\n",
-               src_filename,
-               err_code,
-               errors);
+        FUNC_ERROR(err_code);
         return -1;
     }
 
     /*dump input information*/
     av_dump_format(fmt_ctx, 0, src_filename, 0);
 
-    in_stream = fmt_ctx->streams[1];
+    in_stream = fmt_ctx->streams[0];
     AVCodecParameters *in_codecpar = in_stream->codecpar;
     if(in_codecpar->codec_type != AVMEDIA_TYPE_AUDIO){
         av_log(NULL, AV_LOG_ERROR, "The Codec type is invalid!\n");
@@ -125,20 +117,13 @@ int fetch_audio_LC(char *src_filename, char *dst_filename)
 
 
     if((err_code = avcodec_parameters_copy(out_stream->codecpar, in_codecpar)) < 0 ){
-        av_strerror(err_code, errors, ERROR_STR_SIZE);
-        av_log(NULL, AV_LOG_ERROR,
-               "Failed to copy codec parameter, %d(%s)\n",
-               err_code, errors);
+        FUNC_ERROR(err_code);
     }
 
     out_stream->codecpar->codec_tag = 0;
 
     if((err_code = avio_open(&ofmt_ctx->pb, dst_filename, AVIO_FLAG_WRITE)) < 0) {
-        av_strerror(err_code, errors, 1024);
-        av_log(NULL, AV_LOG_DEBUG, "Could not open file %s, %d(%s)\n",
-               dst_filename,
-               err_code,
-               errors);
+        FUNC_ERROR(err_code);
         exit(1);
     }
 
@@ -185,7 +170,7 @@ int fetch_audio_LC(char *src_filename, char *dst_filename)
     while(av_read_frame(fmt_ctx, &pkt) >=0 ){
         if(pkt.stream_index == audio_stream_index){
             pkt.pts = av_rescale_q_rnd(pkt.pts, in_stream->time_base, out_stream->time_base, (enum AVRounding)(AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX));
-            pkt.dts = pkt.pts;
+            pkt.dts = pkt.pts;  //no B frame?
             pkt.duration = av_rescale_q(pkt.duration, in_stream->time_base, out_stream->time_base);
             pkt.pos = -1;
             pkt.stream_index = 0;
