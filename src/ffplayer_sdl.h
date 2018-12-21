@@ -51,7 +51,7 @@ int sdl2_showColor(const char *title,
             break;
         }
     } while(quit);
-
+    SDL_DestroyRenderer(pRender);
 __WINDOWS:
     SDL_DestroyWindow(pWindow);
 __EXIT:
@@ -209,7 +209,7 @@ __EXIT:
 }
 
 #if 1 // YUVplayer with threads
-#define BLOCK_SIZE 4096000
+#define BLOCK_SIZE 10240
 //event message
 #define REFRESH_EVENT  (SDL_USEREVENT + 1)
 #define QUIT_EVENT  (SDL_USEREVENT + 2)
@@ -237,7 +237,7 @@ int refresh_video_timer(void *udata)
 int sdl2_YUVplayer(int w_width, int w_height,
                    int video_width, int video_height)
 {
-
+printf("start ~\n");
     FILE *video_fd = NULL;
 
     SDL_Event event;
@@ -257,9 +257,10 @@ int sdl2_YUVplayer(int w_width, int w_height,
     unsigned int remain_len = 0;
     unsigned int video_buff_len = 0;
     unsigned int blank_space_len = 0;
+    printf("video_buf[BLOCK_SIZE] ~\n");
     Uint8 video_buf[BLOCK_SIZE];
 
-    const char *path = "../testData/test.yuv";
+    const char *path = "../testData/sintel_640_360.yuv";
 
     const unsigned int yuv_frame_len = video_width * video_height * 12 / 8;
 
@@ -268,7 +269,7 @@ int sdl2_YUVplayer(int w_width, int w_height,
         fprintf( stderr, "Could not initialize SDL - %s\n", SDL_GetError());
         return -1;
     }
-
+printf("creat window from SDL ~\n");
     //creat window from SDL
     win = SDL_CreateWindow("YUV Player",
                            SDL_WINDOWPOS_UNDEFINED,
@@ -279,13 +280,13 @@ int sdl2_YUVplayer(int w_width, int w_height,
         fprintf(stderr, "Failed to create window, %s\n",SDL_GetError());
         goto __FAIL;
     }
-
+printf("SDL_CreateRenderer ~\n");
     renderer = SDL_CreateRenderer(win, -1, 0);
 
     //IYUV: Y + U + V  (3 planes)
     //YV12: Y + V + U  (3 planes)
     pixformat= SDL_PIXELFORMAT_IYUV;
-
+printf("create texture for render ~\n");
     //create texture for render
     texture = SDL_CreateTexture(renderer,
                                 pixformat,
@@ -299,7 +300,7 @@ int sdl2_YUVplayer(int w_width, int w_height,
         fprintf(stderr, "Failed to open yuv file\n");
         goto __FAIL;
     }
-
+printf("read block data ~\n");
     //read block data
     if((video_buff_len = fread(video_buf, 1, BLOCK_SIZE, video_fd)) <= 0){
         fprintf(stderr, "Failed to read data from yuv file!\n");
@@ -314,7 +315,7 @@ int sdl2_YUVplayer(int w_width, int w_height,
     timer_thread = SDL_CreateThread(refresh_video_timer,
                                     NULL,
                                     NULL);
-
+printf("Show Time !\n");
     do {
         //Wait
         SDL_WaitEvent(&event);
@@ -353,7 +354,7 @@ int sdl2_YUVplayer(int w_width, int w_height,
                 printf("not enought data: pos:%p, video_end:%p, blank_space_len:%d\n", video_pos, video_end, blank_space_len);
             }
 
-            SDL_UpdateTexture( texture, NULL, video_pos, video_width);
+            SDL_UpdateTexture(texture, NULL, video_pos, video_width);
 
             //FIX: If window is resize
             rect.x = 0;

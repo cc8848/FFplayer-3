@@ -1226,9 +1226,9 @@ int video_decode(char *srcPath, char *dstH264Path, char *dstYUVPath, char *dstTP
 
                 /*
                  * 在此处添加输出YUV的代码
-                 * 取自于pFrameYUV，使用fwrite()
+                 * 取自于out_buffer，使用fwrite()
                  */
-                fwrite(pFrameYUV, 1, AV_PIX_FMT_YUV420P*(pCodecCtx->width)*(pCodecCtx->height), pDstYUVPath);
+                fwrite(out_buffer, 1, AV_PIX_FMT_YUV420P*(pCodecCtx->width)*(pCodecCtx->height), pDstYUVPath);
                 frame_cnt++;
 
             }
